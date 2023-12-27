@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app"> 
+        {{arr}}
+
+        <button @click="arr[0]++"> 0 </button>
+        <button @click="arr.length=0"> 清除 </button>
+        <button @click="arr[arr.length] = 1"> 新增 </button>
+
+    </div>
+    
+    <script src="packages\vue\dist\vue.global.js"></script>
+    <script>
+        const {createApp,ref,shallowReactive,reactive} = Vue
+        const app = createApp({
+            setup(){
+                const a = {
+                    name:"h"
+                }
+                // const obj1 = reactive(a)
+                // const obj2 = reactive(a)
+                // obj1.name="jake"
+                // console.log(obj1.__v_raw)
+                // const aa = shallowReactive([reactive({cnt: 0}),{cnt: 0}])
+                const arr = reactive([1,23,4])
+                arr[0] = 2
+                // const obj = reactive({name:"hello",a:1,b:3,v:{} })
+                return{
+                   arr
+                }
+            }
+        })
+        app.mount("#app")
+    </script>
+</body>
+</html>

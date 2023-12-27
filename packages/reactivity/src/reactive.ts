@@ -41,6 +41,7 @@ const enum TargetType {
 }
 
 function targetTypeMap(rawType: string) {
+  console.dir(rawType)
   switch (rawType) {
     case 'Object':
     case 'Array':
@@ -56,6 +57,8 @@ function targetTypeMap(rawType: string) {
 }
 
 function getTargetType(value: Target) {
+  console.log(value[ReactiveFlags.SKIP], !Object.isExtensible(value), { value })
+
   return value[ReactiveFlags.SKIP] || !Object.isExtensible(value)
     ? TargetType.INVALID
     : targetTypeMap(toRawType(value))
@@ -252,6 +255,7 @@ function createReactiveObject(
   collectionHandlers: ProxyHandler<any>,
   proxyMap: WeakMap<Target, any>
 ) {
+  // 如果不是对象【string,number,boolean】，直接返回
   if (!isObject(target)) {
     if (__DEV__) {
       console.warn(`value cannot be made reactive: ${String(target)}`)
@@ -260,6 +264,13 @@ function createReactiveObject(
   }
   // target is already a Proxy, return it.
   // exception: calling readonly() on a reactive object
+  //RAW，原始对象，非object的
+  //ReactiveFlags.IS_REACTIVE，是否是一个reactive
+  //对应
+  /*
+    const obj1 = reactive(a)
+    const obj2 = reactive(obj1)  
+  */
   if (
     target[ReactiveFlags.RAW] &&
     !(isReadonly && target[ReactiveFlags.IS_REACTIVE])
@@ -267,11 +278,17 @@ function createReactiveObject(
     return target
   }
   // target already has corresponding Proxy
+  //已经被proxy包装过的，对应下面的：
+  /**
+   * const obj1 = reactive(a)
+     const obj2 = reactive(a)  
+   */
   const existingProxy = proxyMap.get(target)
   if (existingProxy) {
     return existingProxy
   }
   // only specific value types can be observed.
+  // 不合法的值，null，undefined，NAN
   const targetType = getTargetType(target)
   if (targetType === TargetType.INVALID) {
     return target
@@ -281,6 +298,8 @@ function createReactiveObject(
     targetType === TargetType.COLLECTION ? collectionHandlers : baseHandlers
   )
   proxyMap.set(target, proxy)
+  console.log(proxy)
+
   return proxy
 }
 
@@ -364,6 +383,8 @@ export function isProxy(value: unknown): boolean {
  */
 export function toRaw<T>(observed: T): T {
   const raw = observed && (observed as Target)[ReactiveFlags.RAW]
+  console.log('raw', raw, observed)
+
   return raw ? toRaw(raw) : observed
 }
 

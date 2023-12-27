@@ -315,7 +315,9 @@ export function trigger(
     // never been tracked
     return
   }
+  console.log(isArray(target), target, key)
 
+  //存储收集的effect
   let deps: (Dep | undefined)[] = []
   if (type === TriggerOpTypes.CLEAR) {
     // collection being cleared
@@ -323,6 +325,8 @@ export function trigger(
     deps = [...depsMap.values()]
   } else if (key === 'length' && isArray(target)) {
     const newLength = Number(newValue)
+    console.log('depsMap', depsMap)
+
     depsMap.forEach((dep, key) => {
       if (key === 'length' || (!isSymbol(key) && key >= newLength)) {
         deps.push(dep)
@@ -330,6 +334,7 @@ export function trigger(
     })
   } else {
     // schedule runs for SET | ADD | DELETE
+    //void 0等价于undefined
     if (key !== void 0) {
       deps.push(depsMap.get(key))
     }
@@ -338,6 +343,7 @@ export function trigger(
     switch (type) {
       case TriggerOpTypes.ADD:
         if (!isArray(target)) {
+          //不是数组的处理
           deps.push(depsMap.get(ITERATE_KEY))
           if (isMap(target)) {
             deps.push(depsMap.get(MAP_KEY_ITERATE_KEY))
@@ -362,6 +368,7 @@ export function trigger(
         break
     }
   }
+  console.log('ADD', type, deps)
 
   const eventInfo = __DEV__
     ? { target, type, key, newValue, oldValue, oldTarget }

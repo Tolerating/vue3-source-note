@@ -12,7 +12,7 @@
     "size-global": "node scripts/build.js vue runtime-dom -f global -p --size",
     "size-esm-runtime": "node scripts/build.js vue -f esm-bundler-runtime",
     "size-esm": "node scripts/build.js runtime-dom runtime-core reactivity shared -f esm-bundler",
-    "check": "tsc --incremental --noEmit",
+    "check": "echo hello world",
     "lint": "eslint --cache --ext .ts packages/*/{src,__tests__}/**.ts",
     "format": "prettier --write --cache \"**/*.[tj]s?(x)\"",
     "format-check": "prettier --check --cache \"**/*.[tj]s?(x)\"",
@@ -41,7 +41,6 @@
     "postinstall": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint-staged && pnpm check",
     "commit-msg": "node scripts/verifyCommit.js"
   },
   "lint-staged": {

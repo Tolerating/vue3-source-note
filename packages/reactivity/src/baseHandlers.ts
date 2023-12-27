@@ -133,6 +133,8 @@ class BaseReactiveHandler implements ProxyHandler<Target> {
     }
 
     if (!isReadonly) {
+      console.log('track', target, key)
+
       track(target, TrackOpTypes.GET, key)
     }
 
@@ -171,11 +173,18 @@ class MutableReactiveHandler extends BaseReactiveHandler {
     if (isReadonly(oldValue) && isRef(oldValue) && !isRef(value)) {
       return false
     }
+    console.log('this:', this)
+
+    //取反，处理深层reactive【深层reactive的_shallow为false】
     if (!this._shallow) {
       if (!isShallow(value) && !isReadonly(value)) {
+        console.log('oldValue', oldValue)
+        //获取原值
         oldValue = toRaw(oldValue)
+        //获取新的值，toRaw用来递归获取原始值（新值可能是一个响应式对象）
         value = toRaw(value)
       }
+      //判断当前target是不是ref，是就走下面的
       if (!isArray(target) && isRef(oldValue) && !isRef(value)) {
         oldValue.value = value
         return true
@@ -191,9 +200,12 @@ class MutableReactiveHandler extends BaseReactiveHandler {
     const result = Reflect.set(target, key, value, receiver)
     // don't trigger if target is something up in the prototype chain of original
     if (target === toRaw(receiver)) {
+      //触发effect函数
       if (!hadKey) {
+        //对象没有该key，走新增
         trigger(target, TriggerOpTypes.ADD, key, value)
       } else if (hasChanged(value, oldValue)) {
+        //对象有该key，走修改
         trigger(target, TriggerOpTypes.SET, key, value, oldValue)
       }
     }
